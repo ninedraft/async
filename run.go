@@ -4,6 +4,7 @@ import (
 	"context"
 )
 
+// Run starts a new goroutine and returns a promised result.
 func Run[E any](ctx context.Context, fn func(ctx context.Context) (E, error)) Promise[E] {
 	var future = make(chan result[E], 1)
 	go func() {
@@ -17,10 +18,16 @@ func Run[E any](ctx context.Context, fn func(ctx context.Context) (E, error)) Pr
 	return Promise[E](future)
 }
 
+// Promise is a deferred result of function execution.
 type Promise[E any] <-chan result[E]
 
+// ErrPromiseClosed means that the promise was rejected without error.
+// Usually it means that that source goroutine paniced.
 const ErrPromiseClosed err = "promise is closed"
 
+// Await polls the promise until context is canceled or result is returned.
+// Returns context errors, if context is canceled.
+// Returns ErrPromiseClosed is promise was closed without result.
 func (promise Promise[E]) Await(ctx context.Context) (E, error) {
 	select {
 	case <-ctx.Done():
