@@ -1,18 +1,18 @@
 package async
 
 import (
-	"time"
 	"context"
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 )
 
 func ExampleRun() {
 	var ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var doSomething = func(ctx context.Context, request string) (int, error) {return 0, nil}
+	var doSomething = func(ctx context.Context, request string) (int, error) { return 0, nil }
 
 	// two calls of doSomething will be executed simultaneously
 	var result01 = Run(ctx, func(ctx context.Context) (int, error) {
@@ -21,7 +21,7 @@ func ExampleRun() {
 	var result02 = Run(ctx, func(ctx context.Context) (int, error) {
 		return doSomething(ctx, "second")
 	})
-	
+
 	fmt.Println(result01.Await(ctx))
 	fmt.Println(result02.Await(ctx))
 }
